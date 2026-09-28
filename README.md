@@ -654,7 +654,3 @@ Article:
 https://medium.com/@gollapallipavani21/how-i-built-an-incident-agent-that-remembers-what-worked-with-hindsight-d32fa08c7995
 
 ---
-
-## License
-
-Apache-2.0
