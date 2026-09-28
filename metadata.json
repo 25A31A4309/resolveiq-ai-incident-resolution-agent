@@ -1,0 +1,6 @@
+{
+  "name": "ResolveIQ - AI Incident Resolution Agent",
+  "description": "Remember. Reflect. Resolve Better. An AI Incident Resolution Agent for DevOps and SRE teams powered by Hindsight organizational memory.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
