@@ -1,166 +1,558 @@
-# RESOLVEIQ — AI Incident Resolution Agent
-> **Tagline:** Remember. Reflect. Resolve Better.
+# ResolveIQ — AI Incident Resolution Agent
 
-ResolveIQ is an autonomous AI Incident Resolution Agent for DevOps, SRE, and IT operations teams powered by **Hindsight** organizational memory.
+> **Remember. Reflect. Resolve Better.**
 
-Unlike conventional chatbot assistants that reset their context between sessions, ResolveIQ builds a persistent, evolving organizational memory across past production outages. It retains resolution playbooks, identifies root causes, records failed anti-patterns, and reflects upon completed incidents to formulate actionable organizational lessons.
+ResolveIQ is an AI-powered incident resolution agent that helps engineers investigate production problems using organizational memory.
 
----
+Instead of treating every incident as a completely new problem, ResolveIQ can retain completed incident experiences, recall relevant historical incidents during a new investigation, and turn verified outcomes into reusable lessons.
 
-## 1. The Core Learning Loop
+## The Core Idea
 
-```
-                     ┌───────────────────────────┐
-                     │     Production Outage     │
-                     └─────────────┬─────────────┘
-                                   │
-                                   ▼
-                     ┌───────────────────────────┐
-                     │   Hindsight Recall Query  │
-                     └─────────────┬─────────────┘
-                                   │
-                    ┌──────────────┴──────────────┐
-                    ▼                             ▼
-        [Scenario A: Memory Exists]    [Scenario B: New Outage]
-        • Recalls historical cases     • 0 previous memories found
-        • Shows past fixes & causes    • Formulates diagnostic path
-        • Warns of failed approaches   • Hypotheses labeled clearly
-                    │                             │
-                    └──────────────┬──────────────┘
-                                   ▼
-                     ┌───────────────────────────┐
-                     │     AI Recommendations    │
-                     └─────────────┬─────────────┘
-                                   │
-                                   ▼
-                     ┌───────────────────────────┐
-                     │      Engineer Action      │
-                     └─────────────┬─────────────┘
-                                   │
-                                   ▼
-                     ┌───────────────────────────┐
-                     │   Outcome & Root Cause    │
-                     └─────────────┬─────────────┘
-                                   │
-                                   ▼
-                     ┌───────────────────────────┐
-                     │    Hindsight Reflection   │
-                     │  (Synthesizes New Lesson) │
-                     └─────────────┬─────────────┘
-                                   │
-                                   ▼
-                     ┌───────────────────────────┐
-                     │      Hindsight Retain     │
-                     │   (Stored in Knowledge)   │
-                     └─────────────┬─────────────┘
-                                   │
-                                   ▼
-                   Better & Faster Future Resolution!
+> **The first incident creates the knowledge.  
+> The second incident benefits from it.**
+
+The system follows this learning loop:
+
+```text
+Incident
+   ↓
+Investigate
+   ↓
+Recall Historical Experience
+   ↓
+AI Reasoning & Recommendations
+   ↓
+Engineer Action
+   ↓
+Verified Outcome
+   ↓
+Reflect
+   ↓
+Retain Experience
+   ↓
+Better Future Investigations
 ```
 
 ---
 
-## 2. Architecture
+## Why ResolveIQ?
 
+During production incidents, engineers often need to answer questions such as:
+
+- Have we seen this problem before?
+- What caused it last time?
+- What did we try?
+- Which approach actually worked?
+- Which approaches failed?
+- Can the previous experience help with the current investigation?
+
+Traditional incident systems mainly record what happened.
+
+ResolveIQ focuses on making the **experience from previous incidents reusable**.
+
+---
+
+## How It Works
+
+### 1. Declare an Incident
+
+An engineer provides structured incident information:
+
+- Incident title
+- Service
+- Environment
+- Severity
+- Error message / HTTP code
+- Description
+- Logs and technical details
+- Recent changes
+
+Example:
+
+```text
+Service: payment-api
+Environment: Production
+Severity: High
+Error: 502 Bad Gateway
+Problem: Customers cannot complete payments
 ```
-Engineer / SRE Responder
-         │
-         ▼
-ResolveIQ Web UI (React + TypeScript + Tailwind CSS)
-         │  HTTP /api/incidents, /api/memory
-         ▼
-FastAPI Backend / Full-Stack Server
-         │
-   ┌─────┴─────────────────────────┐
-   │                               │
-   ▼                               ▼
-Incident Agent            Hindsight Service
-(Orchestration & Reasoning) (Retain • Recall • Reflect)
-   │                               │
-   ▼                               ▼
-LLM Provider               Persistent Memory Store
-(Gemini 3.8 / Ollama)      (Vector + Lexical Indexes)
+
+Creating an incident does **not** immediately create organizational memory.
+
+The experience is retained after the investigation has an actual outcome.
+
+---
+
+### 2. Investigate With Memory
+
+When a new problem is investigated, ResolveIQ checks organizational memory first.
+
+If no relevant experience exists:
+
+```text
+No relevant historical memory found
+```
+
+The agent then reasons from the current incident context.
+
+If a similar historical experience exists:
+
+```text
+Historical Experience Found
+```
+
+ResolveIQ can show:
+
+- Previous incident
+- Previous root cause
+- Previous resolution
+- Previous outcome
+- Relevance to the current problem
+
+The historical experience is used as **evidence, not proof**.
+
+The engineer still validates the current incident.
+
+---
+
+### 3. Record the Outcome
+
+After investigation, the engineer records what actually happened:
+
+```text
+Action Taken
+Result
+Root Cause
+Final Resolution
+Engineer Feedback
+```
+
+For example:
+
+```text
+Root Cause:
+Database connection pool exhaustion
+
+Resolution:
+Reset the database connection pool
+and scale the pool ceiling
+
+Outcome:
+Successfully resolved
 ```
 
 ---
 
-## 3. How Hindsight Is Used
+### 4. Retain the Experience
 
-ResolveIQ integrates directly with the three core operations of the Hindsight agent memory framework:
+The completed incident becomes a reusable organizational memory.
 
-1. **Retain (`hindsight.retain`)**:
-   - Ingests structured incident experiences upon resolution:
-     - `incident_id`, `service`, `title`, `severity`, `environment`
-     - `root_cause`, `final_resolution`, `outcome`
-     - `actions_taken`, `failed_approaches` (anti-patterns)
-     - `engineer_feedback`, `tags`
-   - Normalizes facts and creates searchable representations.
+ResolveIQ retains information such as:
 
-2. **Recall (`hindsight.recall`)**:
-   - Queries long-term organizational memory using error telemetry, service signatures, and failure symptoms.
-   - Strictly reports real findings:
-     - If matches exist: returns memories ranked by relevance tier (`High relevance` or `Relevant memory`).
-     - If no match exists: returns empty memory and triggers "No relevant historical memory found" without inventing fake cases.
+```text
+Incident
+Service
+Error
+Root Cause
+Actions
+Failed Approaches
+Resolution
+Outcome
+Engineer Feedback
+Tags
+```
 
-3. **Reflect (`hindsight.reflect`)**:
-   - Analyzes the full incident lifecycle to synthesize permanent organizational lessons and runbook guidelines.
-   - Example synthesized lesson:
-     > *"For recurring payment-api incidents exhibiting symptoms of 'Payment API returning 502', first inspect for database connection pool exhaustion. Verified successful remediation is to reset database connection pool."*
+This creates a persistent experience that can be recalled during future investigations.
 
 ---
 
-## 4. Quick Start & Running the Project
+### 5. Reflect Into Lessons
+
+ResolveIQ can also synthesize a reusable lesson from the completed incident.
+
+Example:
+
+```text
+For recurring payment-api incidents exhibiting symptoms
+of Payment API returning 502, first inspect for database
+connection pool exhaustion.
+
+Verified remediation:
+Reset the database connection pool and scale the pool ceiling.
+```
+
+The goal is to prevent engineers from repeatedly rediscovering the same operational knowledge.
+
+---
+
+## Example: Payment API 502
+
+### First Incident
+
+A production Payment API starts returning:
+
+```text
+502 Bad Gateway
+```
+
+There is no previous relevant memory.
+
+ResolveIQ investigates the current context and provides possible causes and investigation steps.
+
+The engineer discovers:
+
+```text
+Root Cause:
+Database connection pool exhaustion
+```
+
+The pool is reset and the pool ceiling is increased.
+
+The incident succeeds.
+
+The experience is then retained.
+
+---
+
+### Similar Incident Later
+
+A similar Payment API problem occurs again.
+
+This time ResolveIQ recalls the previous experience:
+
+```text
+Historical Experience Found
+
+Previous Root Cause:
+Database connection pool exhaustion
+
+Previous Resolution:
+Reset database connection pool
+and scale the pool ceiling
+
+Previous Outcome:
+Successfully resolved
+```
+
+The previous experience becomes part of the investigation context.
+
+```text
+First incident
+     ↓
+Resolve
+     ↓
+Retain
+     ↓
+Historical Memory
+     ↓
+Second incident
+     ↓
+Recall
+     ↓
+Investigate with previous experience
+```
+
+---
+
+## Hindsight Memory
+
+ResolveIQ is designed around persistent agent memory concepts from **Hindsight**.
+
+The memory service supports three important operations:
+
+### Retain
+
+Stores completed incident experiences.
+
+```python
+await hindsight_service.retain(memory_data)
+```
+
+### Recall
+
+Searches previously retained experiences relevant to the current incident.
+
+```python
+memories = await hindsight_service.recall(
+    query=incident_query,
+    service=service
+)
+```
+
+### Reflect
+
+Converts an incident outcome into a reusable organizational lesson.
+
+```python
+lesson = await hindsight_service.reflect(
+    incident_data,
+    feedback
+)
+```
+
+The project can connect to a remote Hindsight service through:
+
+```text
+HINDSIGHT_API_URL
+HINDSIGHT_AGENT_ID
+```
+
+When a remote Hindsight URL is not configured, ResolveIQ uses its local persistent memory engine for development and demonstration.
+
+---
+
+## Architecture
+
+```text
+┌──────────────────────────────────────┐
+│          ResolveIQ Web UI            │
+│      React + TypeScript + Vite       │
+└──────────────────┬───────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────┐
+│       Full-Stack Application         │
+│        Node.js / Express / TS        │
+└──────────────────┬───────────────────┘
+                   │
+                   ▼
+┌──────────────────────────────────────┐
+│        Incident Agent Logic          │
+│      Investigation + Reasoning       │
+└───────────────┬───────────────┬──────┘
+                │               │
+                ▼               ▼
+       ┌──────────────┐  ┌───────────────┐
+       │ LLM Service  │  │ Hindsight     │
+       │ Gemini /     │  │ Memory        │
+       │ Ollama       │  │ Service       │
+       └──────────────┘  └───────┬───────┘
+                                 │
+                    ┌────────────┼────────────┐
+                    ▼            ▼            ▼
+                 Retain       Recall       Reflect
+                    │            │            │
+                    └────────────┼────────────┘
+                                 ▼
+                       Organizational Memory
+```
+
+---
+
+## Main Features
+
+### 🧾 Incident Management
+
+Create and track production incidents with structured technical context.
+
+### 🧠 Historical Memory Recall
+
+Retrieve relevant previous incident experiences during a new investigation.
+
+### 🤖 AI Investigation
+
+Use current incident context together with historical experience to generate investigation guidance.
+
+### 🔄 Outcome Tracking
+
+Record actions, results, root causes, final resolutions, and engineer feedback.
+
+### 💾 Persistent Organizational Memory
+
+Retain useful incident experiences for future investigations.
+
+### 📚 Lessons
+
+Convert completed experiences into reusable organizational lessons.
+
+### 📊 Analytics
+
+Track incident and memory-related operational metrics.
+
+### 👨‍💻 Human-in-the-Loop
+
+ResolveIQ provides investigation guidance. Engineers remain responsible for validating the actual root cause and resolution.
+
+---
+
+## Before vs After Memory
+
+| Without Organizational Memory | With ResolveIQ |
+|---|---|
+| Start troubleshooting from current context | Start with current context + relevant history |
+| Search old incidents manually | Recall relevant historical experiences |
+| Previous failed approaches may be forgotten | Failed approaches can be retained |
+| Knowledge can remain with individuals | Experiences become reusable organizational knowledge |
+| Similar incidents may repeat the same investigation | Previous outcomes can inform future investigation |
+
+---
+
+## Technology Stack
+
+### Frontend
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Lucide React
+- Motion
+
+### Application Server
+
+- Node.js
+- Express
+- TypeScript
+- `tsx`
+
+### AI
+
+- Google Gemini
+- Optional local Ollama support
+
+### Backend / Services
+
+- Python
+- FastAPI
+- Hindsight memory service
+
+### Memory
+
+- Hindsight-compatible retain / recall / reflection workflow
+- Local persistent fallback for development and demo execution
+
+---
+
+## Project Structure
+
+```text
+resolveiq-ai-incident-resolution-agent/
+│
+├── backend/
+│   ├── app/
+│   │   ├── config.py
+│   │   ├── main.py
+│   │   ├── models.py
+│   │   └── services/
+│   │       ├── hindsight_service.py
+│   │       ├── incident_agent.py
+│   │       └── llm_service.py
+│   │
+│   ├── requirements.txt
+│   ├── seed_demo.py
+│   └── tests/
+│       └── test_incident_flow.py
+│
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── services/
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── types.ts
+│
+├── .env.example
+├── .gitignore
+├── index.html
+├── metadata.json
+├── package.json
+├── server.ts
+├── tsconfig.json
+├── vite.config.ts
+└── README.md
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
-- Node.js (v18+) & npm
-- Python 3.10+ (if running Python backend standalone)
 
-### 1. Installation
+Install:
+
+- Node.js
+- npm
+- Python 3.10+ if using the Python backend separately
+
+### 1. Clone the Repository
+
 ```bash
-# Install frontend and full-stack dependencies
+git clone https://github.com/25A31A4309/resolveiq-ai-incident-resolution-agent.git
+cd resolveiq-ai-incident-resolution-agent
+```
+
+### 2. Install Dependencies
+
+```bash
 npm install
-
-# (Optional) Install Python backend dependencies
-cd backend && pip install -r requirements.txt
 ```
 
-### 2. Environment Configuration
-Copy the template configuration:
+For the Python backend:
+
 ```bash
-cp .env.example .env
+cd backend
+pip install -r requirements.txt
+cd ..
 ```
 
-Key environment variables:
-- `GEMINI_API_KEY`: API key for Gemini model reasoning (automatically injected in AI Studio).
-- `PORT`: Web server port (default: `3000`).
-- `LLM_PROVIDER`: `gemini` (default) or `ollama`.
-- `OLLAMA_BASE_URL`: Local Ollama instance URL (e.g. `http://localhost:11434`).
-- `HINDSIGHT_API_URL`: Optional external Hindsight server URL (leave empty for embedded engine).
+### 3. Configure Environment Variables
 
-### 3. Run the Full-Stack Application
+Create `.env` from the provided template.
+
+Important configuration values include:
+
+```env
+GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+
+PORT=3000
+
+LLM_PROVIDER="gemini"
+
+OLLAMA_BASE_URL="http://localhost:11434"
+OLLAMA_MODEL="llama3"
+
+HINDSIGHT_API_URL=""
+HINDSIGHT_AGENT_ID="resolveiq-sre-agent"
+```
+
+Never commit real API keys or secrets.
+
+---
+
+## Run ResolveIQ
+
+Start the application:
+
 ```bash
 npm run dev
 ```
-The server will boot on `http://localhost:3000`.
+
+Then open:
+
+```text
+http://localhost:3000
+```
 
 ---
 
-## 5. Local Hindsight & Local Ollama Setup
+## Optional Local Ollama
 
-ResolveIQ can operate completely offline with local LLMs and local Hindsight:
+To use Ollama instead of Gemini:
 
-### Running Local Ollama
-```bash
-# Pull model
-ollama run llama3
-
-# Set environment variables in .env:
-LLM_PROVIDER=ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3
+```env
+LLM_PROVIDER="ollama"
+OLLAMA_BASE_URL="http://localhost:11434"
+OLLAMA_MODEL="llama3"
 ```
 
-### Running Standalone Python FastAPI Backend
+Then make sure Ollama is running locally.
+
+---
+
+## Optional Python Backend
+
+The FastAPI backend can be started separately with:
+
 ```bash
 cd backend
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -168,58 +560,101 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 ---
 
-## 6. How to Perform the Hackathon Live Demo
+## Demo Flow
 
-This live demonstration highlights the core value of ResolveIQ in two simple steps:
+A simple demonstration of the learning behavior:
 
-### Preparation: Clean Slate
-1. Click **"Reset"** in the top navigation bar (or via the **Demo Guide** modal).
-2. The memory count will display **0 Incidents Remembered**.
+```text
+1. Start with no retained incident
+             ↓
+2. Create Payment API 502 incident
+             ↓
+3. Investigate
+             ↓
+4. Identify database connection pool exhaustion
+             ↓
+5. Record successful resolution
+             ↓
+6. Retain the experience
+             ↓
+7. Create a similar incident
+             ↓
+8. Recall historical experience
+             ↓
+9. Use memory as investigation context
+             ↓
+10. Validate the current incident
+```
 
-### Step 1: Brand New Incident (Scenario B: No Memory)
-1. Navigate to **New Incident** and click preset **"Payment 502 (Demo 1)"**.
-2. Click **"Analyze Incident"**.
-3. **Observation:**
-   - Hindsight reports: *"No relevant historical memory found. This appears to be a new incident for your organization."*
-   - AI generates generic diagnostic investigation steps (checking pool health, deployment logs).
-4. Scroll to **"Record Incident Outcome"** and click **"Auto-fill DB Pool Resolution"**.
-5. Click **"Save Outcome & Retain Memory"**.
-6. **Observation:**
-   - Hindsight executes **Reflect**, synthesizing a new organizational lesson.
-   - The completed experience is **retained** in long-term memory.
-   - Memory count increases to **1 Incident Remembered**.
+### The key moment
 
-### Step 2: Recurring Outage (Scenario A: Memory Recalled!)
-1. Click **"Test Recall on Next Incident"** (or click preset **"Payment 502 (Demo 2: Recall)"** on New Incident).
-2. Click **"Analyze Incident"**.
-3. **Observation:**
-   - Hindsight immediately displays: *"Similar historical incidents found (High relevance)"*.
-   - Shows the exact incident resolved in Step 1 (`INC-...`), confirmed root cause (`Database connection pool exhaustion`), and resolution (`Reset database connection pool`).
-   - The AI's #1 recommended action is now: **"Execute verified resolution: Reset database connection pool"** with justification referencing the past incident!
-   - Shows previously failed approaches to avoid.
-4. **Conclusion:** Resolution time drops from 45 minutes to under 3 minutes. The organization has permanently learned!
+The first investigation has no useful historical memory.
+
+The later investigation can show:
+
+```text
+Hindsight Memory Found
+```
+
+and expose the previous:
+
+- Root cause
+- Resolution
+- Outcome
+- Relevant incident experience
 
 ---
 
-## 7. Seeding Synthetic Demo Incidents
+## Important Design Principle
 
-To populate realistic synthetic incident experiences for exploration:
-```bash
-# Via Web UI: Click "Seed Experiences" in top navigation bar
-# Or via CLI:
-python3 backend/seed_demo.py
-```
-This populates realistic multi-service outages (API Gateway 504 timeouts, Auth token key rotation loops, etc.) into Hindsight memory.
+ResolveIQ does **not** assume that a previous incident has the same root cause as the current incident.
+
+Historical memory is treated as:
+
+> **Evidence, not proof.**
+
+The engineer must validate the current system before applying a previous resolution.
+
+This is especially important for production systems where similar symptoms can have different underlying causes.
 
 ---
 
-## 8. Automated Tests
-```bash
-# Run backend test suite verifying the 2-stage learning loop
-python3 -m pytest backend/tests/test_incident_flow.py -v
-```
+## Security & Operational Notes
+
+- Do not commit API keys or secrets.
+- Use synthetic incident data unless you have authorization to use real production information.
+- Do not automatically execute destructive production actions.
+- Treat AI recommendations as investigation guidance.
+- Require engineer validation before applying operational changes.
+
+---
+
+## Hindsight Resources
+
+ResolveIQ uses Hindsight concepts for persistent agent memory.
+
+- [Hindsight GitHub](https://github.com/vectorize-io/hindsight)
+- [Hindsight Documentation](https://hindsight.vectorize.io/)
+- [What is Agent Memory?](https://vectorize.io/what-is-agent-memory)
+
+---
+
+## Project
+
+**ResolveIQ — AI Incident Resolution Agent**
+
+> Remember. Reflect. Resolve Better.
+
+Repository:
+
+https://github.com/25A31A4309/resolveiq-ai-incident-resolution-agent
+
+Article:
+
+https://medium.com/@gollapallipavani21/how-i-built-an-incident-agent-that-remembers-what-worked-with-hindsight-d32fa08c7995
 
 ---
 
 ## License
+
 Apache-2.0
